@@ -1,34 +1,43 @@
 import streamlit as st
-import openai
+import pandas as pd
+from openai import OpenAI
 
-# Your OpenAI API Key
-openai.api_key = "YOUR_OPENAI_API_KEY"
+# Initialize OpenAI client
+client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
 
 st.title("Chatbot Table Interface")
 
-# Initialize session state for table
-if "prompts" not in st.session_state:
-    st.session_state.prompts = [""] * 3
-if "responses" not in st.session_state:
-    st.session_state.responses = [""] * 3
+# Initialize or load DataFrame
+if "chat_df" not in st.session_state:
+    st.session_state.chat_df = pd.DataFrame({
+        "Question": ["", "", ""],
+        "Answer": ["", "", ""]
+    })
 
-# Table layout
-st.write("Enter your questions/prompts below:")
+# Editable table for questions
+edited_df = st.data_editor(
+    st.session_state.chat_df,
+    column_config={
+        "Question": "Your Prompt",
+        "Answer": "Chatbot Response"
+    },
+    use_container_width=True,
+    num_rows="fixed",
+    disabled=["Answer"]  # Only allow editing "Question"
+)
 
-for i in range(3):
-    cols = st.columns([1, 2])
-    with cols[0]:
-        st.session_state.prompts[i] = st.text_input(f"Prompt {i+1}", st.session_state.prompts[i], key=f"prompt_{i}")
-    with cols[1]:
-        if st.session_state.responses[i]:
-            st.text_area(f"Answer {i+1}", st.session_state.responses[i], key=f"answer_{i}", height=100)
+# Update session state
+st.session_state.chat_df["Question"] = edited_df["Question"]
 
-# Submit button to query chatbot
 if st.button("Get Answers"):
-    for i, prompt in enumerate(st.session_state.prompts):
+    for i, row in st.session_state.chat_df.iterrows():
+        prompt = row["Question"]
         if prompt.strip():
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}]
             )
-            st.session_state.responses[i] = response.choices[0].message.content
+            st.session_state.chat_df.at[i, "Answer"] = response.choices[0].message.content
+
+    # Re-render table with new answers
+    st.experimental_rerun()
