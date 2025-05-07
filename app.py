@@ -5,9 +5,6 @@ import pandas as pd
 from io import StringIO
 import matplotlib.pyplot as plt
 
-
-sns.set_theme(style="whitegrid")
-
 sns.set_theme(style="whitegrid")
 
 # Load the example planets dataset
