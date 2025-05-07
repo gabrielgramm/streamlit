@@ -1,28 +1,36 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+import requests
 
-# Title of the app
-st.title("Bar Chart Example")
+url = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/datasets.txt'
+response = requests.get(url)
 
-# Sample data
-data = {
-    'Category': ['A', 'B', 'C', 'D'],
-    'Values': [23, 45, 12, 37]
-}
-df = pd.DataFrame(data)
+# Check if the request was successful
+if response.status_code == 200:
+    print("Request successful!")
+    print(response.text)  # Print the content of the response (list of dataset names)
+else:
+    print(f"Request failed with status code {response.status_code}")
 
-# Show dataframe
-st.subheader("Data")
-st.dataframe(df)
 
-# Plot bar chart
-st.subheader("Bar Chart")
-fig, ax = plt.subplots()
-ax.bar(df['Category'], df['Values'], color='skyblue')
-ax.set_xlabel("Category")
-ax.set_ylabel("Values")
-ax.set_title("Sample Bar Chart")
+st.title("DS basics")
 
-# Display plot
-st.pyplot(fig)
+st.title("Seaborn Visualization")
+
+sns.set_theme(style="whitegrid")
+
+#load data
+planets = sns.load_dataset("planets")
+
+planets.columns
+
+cmap = sns. cubehelix_palette(rot=.2, as_cmap=True)
+plot = sns.relplot(
+    data=planets, x='distance', y='orbital_period', hue='year', size='mass', palette=cmap, sizes=(10,200)
+)
+plot.set(xscale='log', yscale='log')
+g.ax.xaxis.grid(True, "minor", linewidth=.25)
+g.ax.yaxis.grid(True, "minor", linewidth=.25)
+g.despine(left=True, bottom=True)
