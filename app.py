@@ -4,7 +4,7 @@ import seaborn as sns
 import pandas as pd
 from io import StringIO
 import matplotlib.pyplot as plt
-import stramlit as st
+import streamlit as st
 
 sns.set_theme(style="whitegrid")
 
